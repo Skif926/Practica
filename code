@@ -1,0 +1,466 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <windows.h>
+
+using namespace std;
+void clear() { // Чистит консоль
+    COORD topLeft = { 0, 0 };
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO screen;
+    DWORD written;
+
+    GetConsoleScreenBufferInfo(console, &screen);
+    FillConsoleOutputCharacterA(
+        console, ' ', screen.dwSize.X * screen.dwSize.Y, topLeft, &written
+    );
+    FillConsoleOutputAttribute(
+        console, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE,
+        screen.dwSize.X * screen.dwSize.Y, topLeft, &written
+    );
+    SetConsoleCursorPosition(console, topLeft);
+};
+struct Health{
+public:
+    int
+    Armor_left_front,
+    Armor_left_middle,
+    Armor_right_front,
+    Armor_right_middle,
+    Humans,
+    Control_room,
+    Manevrs_engines,
+    Hyperdrive,
+    Armament1,
+    Armament2,
+    Armament3,
+    Life_support,
+    Shield_generator;
+    int getArmor(){return Armor_left_front+Armor_left_middle+Armor_right_front+Armor_right_middle;}
+    int getSystem(){return Control_room+Life_support+Manevrs_engines+Hyperdrive+Shield_generator;}
+    int getWeapons(){int a=0;if(Armament1!=-1){a+=Armament1;}if(Armament2!=-1){a+=Armament2;}if(Armament3!=-1){a+=Armament3;} return a;}
+
+
+
+
+};
+enum Name {Karaks = 1, Mikarus, HarisIV};
+//свойства!!!!!!!!!!!!!!!!
+class Ship {
+private:
+    Name Name;
+    int ArmorType=1,Weaponlvl=1,ShitLvL=1,EngineLvl=1;
+    int Desant=0,ShieldOnline=0;
+    bool maneuvers=false,Life=true;// используетли корабль инэргию на манёвры
+public:
+    Health h;
+    Ship(enum Name a):Name(a){
+        switch (a) {
+        case Karaks:
+            h.Armor_left_front=1*ArmorType;
+            h.Armor_right_front=1*ArmorType;
+            h.Armor_left_middle=2*ArmorType;
+            h.Armor_right_middle=2*ArmorType;
+            //Броня
+            h.Control_room=2;
+            h.Life_support=2;
+            h.Manevrs_engines=1;
+            h.Hyperdrive=1;
+            h.Shield_generator=1;
+            h.Humans=6;
+            //Системы
+            h.Armament1=2;
+            h.Armament2=-1;
+            h.Armament3=-1;
+            //Вооружение
+            break;
+        case Mikarus:
+            h.Armor_left_front=3*ArmorType;
+            h.Armor_right_front=3*ArmorType;
+            h.Armor_left_middle=2*ArmorType;
+            h.Armor_right_middle=2*ArmorType;
+            //Броня
+            h.Control_room=1;
+            h.Life_support=1;
+            h.Manevrs_engines=1;
+            h.Hyperdrive=1;
+            h.Shield_generator=1;
+            h.Humans=4;
+            //Системы
+            h.Armament1=-1;
+            h.Armament2=-1;
+            h.Armament3=-1;
+            //Вооружение
+            break;
+        case HarisIV:
+            h.Armor_left_front=1*ArmorType;
+            h.Armor_right_front=1*ArmorType;
+            h.Armor_left_middle=3*ArmorType;
+            h.Armor_right_middle=3*ArmorType;
+            //Броня
+            h.Control_room=3;
+            h.Life_support=2;
+            h.Manevrs_engines=2;
+            h.Hyperdrive=1;
+            h.Shield_generator=1;
+            h.Humans=3;
+            //Системы
+            h.Armament1=2;
+            h.Armament2=-1;
+            h.Armament3=-1;
+            //Вооружение
+            break;
+          }
+        ShieldOnline=h.Shield_generator*ShitLvL;
+    }
+
+    string getName(){switch (Name) {case Karaks: return "Karaks";case Mikarus: return "Mikarus";case HarisIV: return "HarisIV";default: return 0;}}
+    enum Name getEnumName(){return Name;}
+    void setManeuvers(bool a){maneuvers=a;}
+    bool getManeuvers(){return maneuvers;}
+    bool getLife(){return Life;}
+    void TakeDamage0(){
+        if (ShieldOnline>0){ShieldOnline-=1;cout<<"Щиты повреждены:"<<ShieldOnline<<endl;}
+        else if (h.Armor_left_middle>0){h.Armor_left_middle-=1;cout<<"Повреждение брони ";if(h.Armament1>0){h.Armament1-=1;cout<<"и оружия";}cout<<endl;}
+        else if (h.Life_support>0){h.Life_support-=1;cout<<"Повреждение систем"<<endl;}
+    }
+    void TakeDamage1(){
+        if (ShieldOnline>0){ShieldOnline-=1;cout<<"Щиты повреждены:"<<ShieldOnline<<endl;}
+        else if (h.Armor_right_middle>0){h.Armor_right_middle-=1;cout<<"Повреждение брони ";if(h.Armament1>0){h.Armament1-=1;cout<<"и оружия";}cout<<endl;}
+        else if (h.Control_room>0){h.Control_room-=1;cout<<"Повреждение систем"<<endl;}
+    }
+    void TakeDamage2(){
+         if (ShieldOnline>0){ShieldOnline-=1;cout<<"Щиты повреждены:"<<ShieldOnline<<endl;}
+         else if (h.Armor_left_front>0){h.Armor_left_front-=1;cout<<"Повреждение брони"<<endl;}
+         else if (h.Hyperdrive>0){h.Hyperdrive-=1;if(h.Manevrs_engines>0){h.Manevrs_engines-=1;}cout<<"Повреждение систем"<<endl;}
+    }
+    void TakeDamage3(){
+         if (ShieldOnline>0){ShieldOnline-=1;cout<<"Щиты повреждены:"<<ShieldOnline<<endl;}
+         else if (h.Armor_right_front>0){h.Armor_right_front-=1;cout<<"Повреждение брони"<<endl;}
+         else if (h.Shield_generator>0){h.Shield_generator-=1;if(h.Manevrs_engines>0){h.Manevrs_engines-=1;}cout<<"Повреждение систем"<<endl;}
+    }
+    void SetShield(){ShieldOnline=h.Shield_generator*ShitLvL;}
+    int getWeaponLvL(){return Weaponlvl;}
+    float getEngineLvl(){return EngineLvl;}
+};
+
+void INF(Ship a){
+    cout<<"Корабль типа: "<<a.getName()<<endl;
+    switch (a.getEnumName()) {
+    case Karaks:
+        if (a.h.getArmor()!=6){if (a.h.getArmor()!=0){cout <<'\t'<<"Повреждение брони";}else {cout<<'\t'<<"Броня уничтожена";}}
+        if (a.h.getSystem()!=7){if(a.h.getSystem()!=0){cout <<'\t'<<"Повреждение систем";}else{cout<<'\t'<<"Все системы корабля уничтожены";}}
+        if (a.h.getWeapons()!=2){if (a.h.getWeapons()!=0){cout <<'\t'<<"Повреждение вооружения";}else {cout<<'\t'<<"Вооружение уничтожено";}}
+        if (a.h.Humans!=6){if (a.h.Humans!=0){cout <<'\t'<<"Неполный экипаж";}else {cout<<'\t'<<"Экипаж унитожен";}}
+        break;
+    case Mikarus:
+        if (a.h.getArmor()!=10){if (a.h.getArmor()!=0){cout <<'\t'<<"Повреждение брони";}else {cout<<'\t'<<"Броня уничтожена";}}
+        if (a.h.getSystem()!=5){if (a.h.getSystem()!=0){cout <<'\t'<<"Повреждение систем";}else{cout<<'\t'<<"Все системы корабля уничтожены";}}
+        if (a.h.Humans!=4){if (a.h.Humans!=0){cout <<'\t'<<"Неполный экипаж";}else {cout<<'\t'<<"Экипаж унитожен";}}
+        break;
+    case HarisIV:
+        if (a.h.getArmor()!=8){if (a.h.getArmor()!=0){cout <<'\t'<<"Повреждение брони";}else {cout<<'\t'<<"Броня уничтожена";}}
+        if (a.h.getSystem()!=10){if(a.h.getSystem()!=0){cout <<'\t'<<"Повреждение систем";}else{cout<<'\t'<<"Все системы корабля уничтожены";}}
+        if (a.h.getWeapons()!=2){if (a.h.getWeapons()!=0){cout <<'\t'<<"Повреждение вооружения";}else {cout<<'\t'<<"Вооружение уничтожено";}}
+        if (a.h.Humans!=3){if (a.h.Humans!=0){cout <<'\t'<<"Неполный экипаж";}else {cout<<'\t'<<"Экипаж унитожен";}}
+        break;
+    }
+}
+class Army{
+private:
+    Army(){};
+    string Name;
+public:
+    vector<Ship>v;
+    bool side;
+
+    Army(bool a,string n):Name(n),side(a){};
+    void Add(int a){
+            if(a==1){
+                Ship d(Karaks);
+                v.push_back(d);
+            }else if(a==2){
+                Ship d(Mikarus);
+                v.push_back(d);
+            }else if (a==3){
+                Ship d(HarisIV);
+                v.push_back(d);
+            }
+    }
+    string getName(){return Name;}
+};
+
+class Board{
+    Army My,Enemy;
+    //vector <vector<Ship>>board{10};
+    //vector <Ship>board;
+public:
+    Board(bool a):My(a,"Player"),Enemy(false,"Enemy"){};
+    void Ins(){
+    cout<<"Введите корабли вашей флотилии "<<My.getName()<<endl;
+    while(true){
+        cout<<"Выберите тип корабля"<<endl
+           <<"1 - Karaks "<<endl
+          <<"2 - Mikarus "<<endl
+         <<"3 - HarisIV "<<endl;
+        int c=0,c2=0;
+        cin>>c;
+        cout<<"Сколько таких кораблей в вашей флотилии?"<<endl;
+        cin>>c2;
+        switch (c) {
+        case 1:
+            if (c2<=0)goto er1;
+            for(int i=0;i<c2;i++)My.Add(c);
+            break;
+        case 2:
+            if (c2<=0)goto er1;
+            for(int i=0;i<c2;i++)My.Add(c);
+            break;
+        case 3:
+            if (c2<=0)goto er1;
+            for(int i=0;i<c2;i++)My.Add(c);
+            break;
+        default:
+er1:
+            cout<<"Ввод неверен повторить ввод? y/n"<<endl;
+            char y;
+            cin>>y;
+            if(y=='n'||y=='N'||atoi(&y)==0){
+                clear();
+                break;
+            }
+            break;
+        }
+        cout<<"Ввести корабли другого типа?  y/n"<<endl;
+        char y;
+        cin>>y;
+        if(y=='n'||y=='N'){
+            clear();
+            break;
+        }
+
+    }
+    cout<<"Введите корабли вражеской флотилии "<<Enemy.getName()<<endl;
+    while(true){
+        cout<<"Выберите тип корабля"<<endl
+           <<"1 - Karaks "<<endl
+          <<"2 - Mikarus "<<endl
+         <<"3 - HarisIV "<<endl;
+        int c=0,c2=0;
+        cin>>c;
+        cout<<"Сколько таких кораблей в вражеской флотилии?"<<endl;
+        cin>>c2;
+        switch (c) {
+        case 1:
+            if (c2<=0)goto er2;
+            for(int i=0;i<c2;i++)Enemy.Add(c);
+            break;
+        case 2:
+            if (c2<=0)goto er2;
+            for(int i=0;i<c2;i++)Enemy.Add(c);
+            break;
+        case 3:
+            if (c2<=0)goto er2;
+            for(int i=0;i<c2;i++)Enemy.Add(c);
+            break;
+        default:
+er2:
+            cout<<"Ввод неверен повторить ввод? y/n"<<endl;
+            char y;
+            cin>>y;
+            if(y=='n'||y=='N'){
+                clear();
+                break;
+            }
+
+            break;
+        }
+        cout<<"Продолжить ввод? y/n"<<endl;
+        char y;
+        cin>>y;
+        if(y=='n'||y=='N'){
+            clear();
+            break;
+        }
+
+    }
+    clear();
+    cout<<"Вы ввели "<<My.v.size()<<" кораблей флотилии "<<My.getName()<<endl;
+    for (unsigned long long i=0;i<My.v.size();i++){
+        cout<<"№"<<i<<" "; INF(My.v[i]);cout<<endl;
+    }
+    cout<<"Вы ввели "<<Enemy.v.size()<<" кораблей флотилии "<<Enemy.getName()<<endl;
+    for (unsigned long long i=0;i<Enemy.v.size();i++){
+       cout<<"№"<<i<<" "; INF(Enemy.v[i]);cout<<endl;
+    }
+    }
+    void Run(){
+        ShiedsOnline(My,Enemy);
+        if (My.side){
+            Fight(My,Enemy);
+        }
+
+        while(true){
+            ShiedsOnline(My,Enemy);
+            Fight(Enemy,My);
+            Fight(My,Enemy);
+        }
+    }
+    void ShiedsOnline(Army& atak,Army& defens){
+        for (unsigned long long i=0;i<defens.v.size();i++){
+            defens.v[i].SetShield();
+            cout<<"Debag Щиты обновлены"<<endl;//Обновить щиты обороняющимся
+        }
+        for (unsigned long long i=0;i<atak.v.size();i++){
+            atak.v[i].SetShield();
+            cout<<"Debag Щиты обновлены"<<endl;//Обновить щиты обороняющимся
+        }
+    }
+    void Fight(Army& atak,Army& defens){
+        cout<<endl<<"Выбирите действие для флотилии "<<atak.getName()<<endl;
+        for (unsigned long long i=0;i<atak.v.size();i++){
+            if (!(atak.v[i].getLife())){continue;}
+            cout<<"№"<<i<<" "; INF(atak.v[i]);cout<<endl;
+            cout<<"  ожидает приказа:"<<endl;
+            atak.v[i].setManeuvers(false);
+            if (atak.v[i].h.getWeapons()!=0){cout<<"1 Атака"<<endl;}
+
+            int y;
+            cin>>y;
+            if ((y==1)&&(atak.v[i].h.getWeapons()!=0)){
+er3:
+                cout<<"Какой корабль будет атакован?"<<endl;
+                for (unsigned long long j=0;j<defens.v.size();j++){
+                    cout<<"№"<<j<<" "; INF(defens.v[j]);cout<<endl;
+                }
+                    cin>>y;
+                    if(y<0||y>defens.v.size()-1){cout<<"Ошибочный ввод "; goto er3;}
+                    FightShip(atak.v[i],defens.v[y]);
+            }
+
+    }
+    }
+
+    void FightShip(Ship atak,Ship defense){
+        switch (atak.getEnumName()) {
+        case Karaks:
+        {
+            bool scope=0;
+            cout<<"Использовать прицельную стрельбу ? y/n"<<endl;
+            string y;
+            cin>>y;
+            //clear();
+            int c;
+            if (y=="y"||y=="Y"){scope=true;}
+            if (scope){cout<<"Количество лазерных атак корабля :"<<atak.h.Armament1*atak.getWeaponLvL()<<endl;c=atak.h.Armament1*atak.getWeaponLvL();}
+            else {
+                cout<<"Количество лазерных атак корабля :"<<(atak.h.Armament1)*2*atak.getWeaponLvL()<<endl;
+                c=(atak.h.Armament1)*2*atak.getWeaponLvL();
+            }
+            //INF(defense);
+            if (scope){
+                cout<<"Выберете атакуемую часть корабля"<<endl<<"0 - Центр лево"<<endl<<"1 - Центр право"<<endl<<"2 - Левая"<<endl<<"3 - Правая"<<endl<<"Любое другое число для выстрела в рандомное место точность сохраниться"<<endl;
+
+                cin>>y;
+                Damage(c,atoi(y.c_str()),defense,scope);
+            } else {
+                Damage(c,-1,defense,scope);
+            }
+
+
+        }
+        break;
+            /*
+            -спросить о прицельной стрельбе(
+            прицельная стрельба даёт на 75% больше вероятность попадания
+            Укоренная стрельба даёт в двое больше выстрелов
+            % попадания ещё зависет от класса и качества вооружения и использует ли противник манёвры
+            на более ранних стадиях игры выгоднее использовать прицельную стрельбу , на более поздних этапах % прибавки от прицельной стрельбы будет не таким существенным
+            и использовать его не будет необходимости
+            )
+            -вывести количество и виды атак
+            -вывести повреждённые части вражеского корабля
+
+            -спросить об атакуемой части корабля
+            -
+            */
+
+        case Mikarus:
+
+            break;
+        case HarisIV:
+
+            break;
+        }
+    }
+    void Damage(int c,int x,Ship defense,bool scope){
+        if ((x>3)||(x<0)){x=rand()%4;}
+        for (int i=0;i<c;i++){
+            float count=50;
+            if (scope){count=count*1.75;}
+//            if (defense.getManeuvers()){count=count*(0.6-defense.getEngineLvl()/10.0);}
+            if (true){count=count*(0.6-defense.getEngineLvl()/10.0);}
+            count+=(rand()%10)-(rand()%10);
+            float f;
+            f=rand()%100;
+            if (count>=f){//Попал куда надо
+                //cout<<"Debag count>=f:count "<<count<<" f "<<f<<endl;
+                cout<<"Попадание точно в цель %"<<count<<"   ";
+
+                switch (x) {
+                case 0:
+                    defense.TakeDamage0();
+                    break;
+                case 1:
+                    defense.TakeDamage1();
+                    break;
+                case 2:
+                    defense.TakeDamage2();
+                    break;
+                case 3:
+                    defense.TakeDamage3();
+                    break;
+                }
+            }else if (f-count<=10){//попал в другую часть корабля
+                //cout<<"Debag f-count<=10 :count "<<count<<" f "<<f<<endl;
+                cout<<"Промазали ,но всё равно попали %"<<count<<"   ";
+                int v=0;
+                do{
+                    v=rand()%4;
+                }while(x==v);
+                switch (v) {
+                case 0:
+                    defense.TakeDamage0();
+                    break;
+                case 1:
+                    defense.TakeDamage1();
+                    break;
+                case 2:
+                    defense.TakeDamage2();
+                    break;
+                case 3:
+                    defense.TakeDamage3();
+                    break;
+                }
+            }else {//промах
+            //cout<<"Debag count>=f-10:count "<<count<<" f "<<f<<endl;
+            cout<<"Промах %"<<count<<endl;
+            }
+
+
+
+        }
+    }
+    };
+
+
+
+
+
+int main(){
+    Board a(true);
+    a.Ins();
+    a.Run();
+
+    return 0;
+}
